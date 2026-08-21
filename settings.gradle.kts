@@ -36,13 +36,14 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
-rootProject.name = "ComposeOClock sample"
+rootProject.name = "ComposeOClock"
 
 include {
+    "oclock-core"()
+    "oclock-watchface-renderer"()
     "app-phone"()
     "app-watch"()
     "shared"()

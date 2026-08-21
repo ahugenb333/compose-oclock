@@ -1,0 +1,21 @@
+Compose O'Clock — Playful Watch Fork
+=====================================
+
+This repository combines:
+
+1. Sample watch faces and apps from the Compose O'Clock project
+   (Copyright Louis CAD / Splitties, Apache License 2.0).
+
+2. Clean-room implementations of the missing Compose O'Clock library modules:
+   - oclock-core
+   - oclock-watchface-renderer
+
+   These modules reimplement the public API used by the sample so the project
+   builds without unavailable Splitties Maven artifacts. They are licensed
+   under Apache License 2.0 by ahugenb333.
+
+The original Splitties Compose O'Clock library remains commercially licensed
+for Play Store distribution per the upstream README. This fork is intended for
+open-source development, sideloading, and experimentation.
+
+See LICENSE for the Apache License 2.0 text.

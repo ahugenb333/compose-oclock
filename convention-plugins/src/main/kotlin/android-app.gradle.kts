@@ -10,7 +10,7 @@ android {
     compileSdk = 34
     defaultConfig {
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         resourceConfigurations += setOf("en", "fr")
     }
     // We embed the signing keystore to allow updating from another computer without uninstalling.
@@ -61,7 +61,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs += "-Xcontext-receivers"
+        freeCompilerArgs += listOf(
+            "-Xcontext-receivers",
+            "-opt-in=org.splitties.compose.oclock.ExperimentalComposeOClockApi",
+        )
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

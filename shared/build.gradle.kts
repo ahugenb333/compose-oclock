@@ -22,6 +22,10 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
+    sourceSets.named("main") {
+        java.exclude("**/cleanthisbeforerelease/**")
+    }
+
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -31,7 +35,7 @@ android {
 
 dependencies {
     api {
-        libs.compose.oclock.core()
+        project(":oclock-core")()
         Google.android.playServices.wearOS()
 
         AndroidX.compose.ui()

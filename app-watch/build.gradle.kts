@@ -21,7 +21,7 @@ dependencies {
     coreLibraryDesugaring(Android.tools.desugarJdkLibs)
     implementation {
         project(":shared")()
-        libs.compose.oclock.watchface.renderer()
+        project(":oclock-watchface-renderer")()
         AndroidX.wear.watchFace.editor()
 
         AndroidX.wear.compose.material()

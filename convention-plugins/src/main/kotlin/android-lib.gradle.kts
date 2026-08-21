@@ -19,6 +19,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs += "-Xcontext-receivers"
+        freeCompilerArgs += listOf(
+            "-Xcontext-receivers",
+            "-opt-in=org.splitties.compose.oclock.ExperimentalComposeOClockApi",
+            "-opt-in=org.splitties.compose.oclock.internal.InternalComposeOClockApi",
+        )
     }
 }

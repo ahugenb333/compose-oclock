@@ -18,7 +18,7 @@ fun WatchFaceSwitcher() {
     var index by remember { mutableIntStateOf(0) }
     OClockCanvas(
         onTap = handler@{ event ->
-            val touchEdgeWidth = 48.dp.toPx()
+            val touchEdgeWidth = px(48)
             val isOnLeftEdge = event.position.x <= touchEdgeWidth
             val isOnRightEdge = isOnLeftEdge.not() &&
                     event.position.x >= size.width - touchEdgeWidth
