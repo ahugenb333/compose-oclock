@@ -2,6 +2,7 @@ package org.splitties.compose.oclock
 
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.graphics.RectF
 import android.view.SurfaceHolder
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
@@ -14,13 +15,17 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import androidx.wear.watchface.CanvasComplicationFactory
 import androidx.wear.watchface.CanvasType
+import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.ComplicationSlotBounds
+import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -36,7 +41,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 abstract class ComposeWatchFaceService(
-    @Suppress("unused") private val complicationSlotIds: Set<Int> = emptySet(),
+    private val complicationSlotIds: Set<Int> = emptySet(),
     @Suppress("unused") private val invalidationMode: InvalidationMode = InvalidationMode.WaitForInvalidation,
 ) : WatchFaceService() {
 
@@ -44,6 +49,35 @@ abstract class ComposeWatchFaceService(
     abstract fun watchFaceContent(): @Composable (Map<Int, StateFlow<ComplicationData>>) -> Unit
 
     open fun supportedComplicationTypes(slotId: Int): List<ComplicationType> = emptyList()
+
+    open fun complicationSlotBounds(slotId: Int): ComplicationSlotBounds =
+        ComplicationSlotBounds(RectF(0.25f, 0.25f, 0.75f, 0.75f))
+
+    open fun defaultComplicationDataSourcePolicy(slotId: Int): DefaultComplicationDataSourcePolicy =
+        DefaultComplicationDataSourcePolicy()
+
+    override fun createComplicationSlotsManager(
+        currentUserStyleRepository: CurrentUserStyleRepository,
+    ): ComplicationSlotsManager {
+        if (complicationSlotIds.isEmpty()) {
+            return ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
+        }
+        val canvasFactory = CanvasComplicationFactory { _, _ -> EmptyCanvasComplication() }
+        val slots = complicationSlotIds.map { slotId ->
+            val supportedTypes = supportedComplicationTypes(slotId)
+            require(supportedTypes.isNotEmpty()) {
+                "supportedComplicationTypes($slotId) must be non-empty when using complication slots"
+            }
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                slotId,
+                canvasFactory,
+                supportedTypes,
+                defaultComplicationDataSourcePolicy(slotId),
+                complicationSlotBounds(slotId),
+            ).build()
+        }
+        return ComplicationSlotsManager(slots, currentUserStyleRepository)
+    }
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
@@ -60,7 +94,9 @@ abstract class ComposeWatchFaceService(
             }
         }
 
-        val complicationData = emptyMap<Int, StateFlow<ComplicationData>>()
+        val complicationData = complicationSlotIds.associateWith { slotId ->
+            complicationSlotsManager.complicationSlots.getValue(slotId).complicationData
+        }
         val faceContent = watchFaceContent()
         val lifecycleOwner = WatchFaceLifecycleOwner()
         val composeView = ComposeView(this).apply {
